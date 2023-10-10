@@ -1862,17 +1862,9 @@ ASTPointer<Builtin> Parser::parseBuiltin()
 	if (m_scanner->currentToken() == Token::Comma)
 	{
 		expectToken(Token::Comma);
-		// TODO: Consider if other ASTNode would be more adequate (MemberAccess?)
-		auto typeClassFunctionNameParameter = parseIdentifierPath();
-		// TODO: write a decent error message
-		if (typeClassFunctionNameParameter->path().size() != 2)
-			m_errorReporter.fatalParserError(
-				42_error,
-				typeClassFunctionNameParameter->location(),
-				"Invalid function! Expected <TypeClassName.FunctionName> format."
-			);
-
-		builtin->setTypeClassFunctionParameter(typeClassFunctionNameParameter);
+		auto functionParameter = parseExpression();
+		// TODO: validation before ?
+		builtin->setFunctionParameter(functionParameter);
 	}
 
 	expectToken(Token::RParen);
