@@ -203,14 +203,17 @@ bool TypeInference::visit(TypeClassDefinition const& _typeClassDefinition)
 
 	typeClassDefinitionAnnotation.type = type(&_typeClassDefinition, {});
 
+	{
+		ScopedSaveAndRestore expressionContext{m_expressionContext, ExpressionContext::Type};
+		_typeClassDefinition.typeVariable().accept(*this);
+	}
+
 	std::map<std::string, Type> functionTypes;
 
 	solAssert(m_analysis.annotation<TypeClassRegistration>(_typeClassDefinition).typeClass.has_value());
 	TypeClass typeClass = m_analysis.annotation<TypeClassRegistration>(_typeClassDefinition).typeClass.value();
 	Type typeVar = m_typeSystem.typeClassVariable(typeClass);
-
-	solAssert(!_typeClassDefinition.typeVariable().typeExpression());
-	annotation(_typeClassDefinition.typeVariable()).type = typeVar;
+	unify(typeAnnotation(_typeClassDefinition.typeVariable()), typeVar, _typeClassDefinition.location());
 
 	auto& typeMembersAnnotation = annotation().members[typeConstructor(&_typeClassDefinition)];
 
@@ -243,7 +246,6 @@ bool TypeInference::visit(TypeClassDefinition const& _typeClassDefinition)
 			m_errorReporter.typeError(1807_error, _typeClassDefinition.location(), "Function " + functionName + " depends on invalid type variable.");
 	}
 
-	unify(typeAnnotation(_typeClassDefinition.typeVariable()), m_typeSystem.freshTypeVariable({{typeClass}}), _typeClassDefinition.location());
 	for (auto instantiation: m_analysis.annotation<TypeRegistration>(_typeClassDefinition).instantiations | ranges::views::values)
 		// TODO: recursion-safety? Order of instantiation?
 		instantiation->accept(*this);
