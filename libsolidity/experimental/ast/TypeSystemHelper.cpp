@@ -291,14 +291,14 @@ std::vector<experimental::Type> TypeEnvironmentHelpers::typeVars(Type _type) con
 
 experimental::Type TypeEnvironmentHelpers::substitute(
 	Type const& _type,
-	TypeVariable const& _variableToReplace,
+	Type const& _partToReplace,
 	Type const& _replacement
 ) const
 {
 	using ranges::views::transform;
 	using ranges::to;
 
-	auto recurse = [&](experimental::Type const& _t) { return substitute(_t, _variableToReplace, _replacement); };
+	auto recurse = [&](experimental::Type const& _t) { return substitute(_t, _partToReplace, _replacement); };
 
 	return visit(util::GenericVisitor{
 		[&](TypeConstant const& _typeConstant) -> experimental::Type {
@@ -307,15 +307,8 @@ experimental::Type TypeEnvironmentHelpers::substitute(
 				_typeConstant.arguments | transform(recurse) | to<std::vector<experimental::Type>>,
 			};
 		},
-		[&](TypeVariable const& _typeVar) -> experimental::Type {
-			if (_typeVar.index() != _variableToReplace.index())
-				return _typeVar;
-
-			solAssert(_typeVar.sort() == _variableToReplace.sort());
-			return _replacement;
-		},
-		[](std::monostate) -> experimental::Type {
-			solAssert(false);
+		[&](auto const& _type) -> experimental::Type {
+			return (env.typeEquals(_type, _partToReplace) ? _replacement : _type);
 		},
 	}, env.resolve(_type));
 }

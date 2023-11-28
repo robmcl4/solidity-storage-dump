@@ -56,8 +56,7 @@ struct TypeEnvironmentHelpers
 	std::string canonicalTypeName(Type _type) const;
 	std::vector<Type> typeVars(Type _type) const;
 
-	// TODO: Extend to allow replacing arbitrary types, not just type variables.
-	Type substitute(Type const& _type, TypeVariable const& _variableToReplace, Type const& _replacement) const;
+	Type substitute(Type const& _type, Type const& _partToReplace, Type const& _replacement) const;
 };
 
 }
