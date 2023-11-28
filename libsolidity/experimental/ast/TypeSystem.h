@@ -76,9 +76,7 @@ public:
 
 	bool isFixedTypeVar(Type const& _typeVar) const;
 	bool isGenericTypeVar(Type const& _typeVar) const;
-	bool hasGenericTypeVars(Type const& _type) const;
 	void fixTypeVars(std::vector<Type> const& _typeVars);
-	void generalizeTypeVars(std::vector<Type> const& _typeVars);
 
 private:
 	TypeEnvironment(TypeEnvironment&& _env):

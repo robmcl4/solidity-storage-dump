@@ -24,7 +24,6 @@
 
 #include <libsolutil/Visitor.h>
 
-#include <range/v3/algorithm/any_of.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/drop_exactly.hpp>
 #include <range/v3/view/drop_last.hpp>
@@ -131,29 +130,12 @@ bool TypeEnvironment::isGenericTypeVar(Type const& _typeVar) const
 		m_fixedTypeVariables.count(std::get<TypeVariable>(_typeVar).index()) == 0;
 }
 
-bool TypeEnvironment::hasGenericTypeVars(Type const& _type) const
-{
-	return ranges::any_of(
-		TypeEnvironmentHelpers{*this}.typeVars(_type),
-		[&](Type const& _maybeTypeVar) { return isGenericTypeVar(_maybeTypeVar); }
-	);
-}
-
 void TypeEnvironment::fixTypeVars(std::vector<Type> const& _typeVars)
 {
 	for (Type const& typeVar: _typeVars)
 	{
 		solAssert(std::holds_alternative<TypeVariable>(typeVar));
 		m_fixedTypeVariables.insert(std::get<TypeVariable>(typeVar).index());
-	}
-}
-
-void TypeEnvironment::generalizeTypeVars(std::vector<Type> const& _typeVars)
-{
-	for (Type const& typeVar: _typeVars)
-	{
-		solAssert(std::holds_alternative<TypeVariable>(typeVar));
-		m_fixedTypeVariables.erase(std::get<TypeVariable>(typeVar).index());
 	}
 }
 
