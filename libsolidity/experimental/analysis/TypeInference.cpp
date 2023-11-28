@@ -829,7 +829,7 @@ bool TypeInference::visit(TypeDefinition const& _typeDefinition)
 	if (underlyingType)
 	{
 		// Undeclared type variables are not allowed in type definitions and we fixed all the declared ones.
-		solAssert(!m_env->hasGenericTypeVars(*underlyingType));
+		solAssert(!TypeEnvironmentHelpers{*m_env}.hasGenericTypeVars(*underlyingType));
 
 		members->second.emplace("abs", TypeMember{helper.functionType(*underlyingType, definedType)});
 		members->second.emplace("rep", TypeMember{helper.functionType(definedType, *underlyingType)});
