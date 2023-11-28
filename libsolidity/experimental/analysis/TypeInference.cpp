@@ -683,6 +683,7 @@ bool TypeInference::visit(TypeClassInstantiation const& _typeClassInstantiation)
 			}) | ranges::to<std::vector<Sort>>;
 		}
 	}
+	m_env->fixTypeVars(arguments);
 
 	Type type{TypeConstant{*typeConstructor, arguments}};
 
