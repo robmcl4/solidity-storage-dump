@@ -35,8 +35,13 @@ Json::Value StorageLayout::generate(ContractDefinition const& _contractDef)
 	solAssert(contractType, "");
 
 	Json::Value variables(Json::arrayValue);
-	for (auto [var, slot, offset]: contractType->stateVariables())
+	for (auto vec : contractType->stateVariables()) {
+		// vec is a std::tuple with [var, slot, offset]
+		auto var = std::get<0>(vec);
+		auto slot = std::get<1>(vec);
+		auto offset = std::get<2>(vec);
 		variables.append(generate(*var, slot, offset));
+	}
 
 	Json::Value layout;
 	layout["storage"] = move(variables);
