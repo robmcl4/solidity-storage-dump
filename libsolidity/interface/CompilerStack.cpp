@@ -43,6 +43,7 @@
 #include <libsolidity/interface/ABI.h>
 #include <libsolidity/interface/Natspec.h>
 #include <libsolidity/interface/GasEstimator.h>
+#include <libsolidity/interface/StorageLayout.h>
 #include <libsolidity/interface/Version.h>
 #include <libsolidity/parsing/Parser.h>
 
@@ -621,6 +622,29 @@ Json::Value const& CompilerStack::contractABI(Contract const& _contract) const
 
 	return *_contract.abi;
 }
+
+Json::Value const& CompilerStack::storageLayout(string const& _contractName) const
+{
+       if (m_stackState < AnalysisSuccessful)
+               BOOST_THROW_EXCEPTION(CompilerError() << errinfo_comment("Analysis was not successful."));
+
+       return storageLayout(contract(_contractName));
+}
+
+Json::Value const& CompilerStack::storageLayout(Contract const& _contract) const
+{
+       if (m_stackState < AnalysisSuccessful)
+               BOOST_THROW_EXCEPTION(CompilerError() << errinfo_comment("Analysis was not successful."));
+
+       solAssert(_contract.contract, "");
+
+       // caches the result
+       if (!_contract.storageLayout)
+               _contract.storageLayout.reset(new Json::Value(StorageLayout().generate(*_contract.contract)));
+
+       return *_contract.storageLayout;
+}
+
 
 Json::Value const& CompilerStack::natspecUser(string const& _contractName) const
 {
